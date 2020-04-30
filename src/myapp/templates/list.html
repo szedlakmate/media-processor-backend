@@ -19,7 +19,7 @@
         {% endif %}
 
         <!-- Upload form. Note enctype attribute! -->
-        <form action="{% url "my-view" %}" method="post" enctype="multipart/form-data">
+        <form action="{% url "upload_file" %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ message }}
             <p>{{ form.non_field_errors }}</p>

@@ -1,10 +1,15 @@
-from django.shortcuts import redirect, render
+import json
+
 from django.http import HttpResponse
-from .models import Document
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+
 from .forms import DocumentForm
+from .models import Document
 
 
-def my_view(request):
+@csrf_exempt
+def upload_file(request):
     message = 'Upload as many files as you want!'
 
     # Handle file upload
@@ -27,3 +32,17 @@ def my_view(request):
     # Render list page with the documents and the form
     context = {'documents': documents, 'form': form, 'message': message}
     return render(request, 'list.html', context)
+
+
+@csrf_exempt
+def package_content(request):
+    # Package content
+    if request.method == 'POST':
+        # TODO: handle bad requests
+        data = json.loads(request.body)
+        reference_id = data['reference_id']
+        key = data['key']
+        kid = data['kid']
+        return HttpResponse(f'id: {reference_id}, key: {key}, kid: {kid}')
+
+    return HttpResponse("Ho")
