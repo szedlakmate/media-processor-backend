@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .forms import DocumentForm
 from .models import Document
-
+from .convert_video import convert_video
 
 @csrf_exempt
 def upload_file(request):
@@ -43,6 +43,7 @@ def package_content(request):
         reference_id = data['reference_id']
         key = data['key']
         kid = data['kid']
+        convert_video()
         return HttpResponse(f'id: {reference_id}, key: {key}, kid: {kid}')
 
     return HttpResponse("Ho")
