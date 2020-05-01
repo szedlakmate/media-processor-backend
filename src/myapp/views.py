@@ -4,9 +4,10 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-from .forms import DocumentForm
-from .models import Document
 from .convert_video import convert_video
+from .forms import DocumentForm
+from .models import RawFile
+
 
 @csrf_exempt
 def upload_file(request):
@@ -16,7 +17,7 @@ def upload_file(request):
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            newdoc = Document(docfile=request.FILES['docfile'])
+            newdoc = RawFile(raw_file=request.FILES['docfile'])
             newdoc.save()
 
             return HttpResponse(f'reference_id: {newdoc.id}', content_type="text/plain")
@@ -27,7 +28,7 @@ def upload_file(request):
         form = DocumentForm()  # An empty, unbound form
 
     # Load documents for the list page
-    documents = Document.objects.all()
+    documents = RawFile.objects.all()
 
     # Render list page with the documents and the form
     context = {'documents': documents, 'form': form, 'message': message}
@@ -43,7 +44,9 @@ def package_content(request):
         reference_id = data['reference_id']
         key = data['key']
         kid = data['kid']
-        convert_video()
+        # encryption_key = '76a6c65c5ea762046bd749a2e632ccbb'
+        # encryption_kid = 'a7e61c373e219033c21091fa607bf3b8'
+        convert_video(reference_id=reference_id, encryption_key=key, encryption_kid=kid)
         return HttpResponse(f'id: {reference_id}, key: {key}, kid: {kid}')
 
     return HttpResponse("Ho")
