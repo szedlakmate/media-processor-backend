@@ -11,27 +11,20 @@ from .models import RawFile, EncodedFile
 
 @csrf_exempt
 def upload_file(request):
-    message = 'Upload as many files as you want!'
-
     # Handle file upload
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            newdoc = RawFile(raw_file=request.FILES['docfile'])
-            newdoc.save()
+            newfile = RawFile(raw_file=request.FILES['media_file'])
+            newfile.save()
 
-            return HttpResponse(f'reference_id: {newdoc.id}', content_type="text/plain")
+            return HttpResponse(f'reference_id: {newfile.id}', content_type="text/plain")
 
-        else:
-            message = 'The form is not valid. Fix the following error:'
     else:
         form = DocumentForm()  # An empty, unbound form
 
-    # Load documents for the list page
-    documents = RawFile.objects.all()
-
-    # Render list page with the documents and the form
-    context = {'documents': documents, 'form': form, 'message': message}
+    # Render upload page
+    context = {'form': form}
     return render(request, 'list.html', context)
 
 
@@ -54,11 +47,16 @@ def packaged_content(request):
 def packaged_content_status(request, packaged_content_id):
     # TODO: Add exception handling
     if request.method == 'GET':
-        encoded_file = EncodedFile.objects.get(id=packaged_content_id)
+        try:
+            encoded_file = EncodedFile.objects.get(id=packaged_content_id)
+        except Exception:
+            return HttpResponse('Referenced item is not found', status=404)
         if encoded_file.status == 'init':
             return HttpResponse('Processing has been started', status=202)
         elif encoded_file.status == 'ended':
-            return HttpResponse(f'location: {encoded_file.encoded_file.url}, key: {encoded_file.encryption_key}, kid: {encoded_file.encryption_kid}', status=200)
+            return HttpResponse(
+                f'location: {encoded_file.encoded_file.url}, key: {encoded_file.encryption_key}, kid: {encoded_file.encryption_kid}',
+                status=200)
         elif encoded_file.status == 'failed':
             return HttpResponse('Processing the file failed', status=500)
         return HttpResponse(status=500)

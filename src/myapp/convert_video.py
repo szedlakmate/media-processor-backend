@@ -7,7 +7,7 @@ from .util import generate_random_string
 
 
 def consume_video(reference_id, encryption_key, encryption_kid):
-    target_dir = 'media/repacked'
+    target_dir = 'media'
     raw_file = RawFile.objects.get(pk=reference_id)
     input_file = raw_file.raw_file.path
 
