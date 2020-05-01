@@ -1,10 +1,10 @@
 import json
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-from .convert_video import convert_video
+from .convert_video import consume_video
 from .forms import DocumentForm
 from .models import RawFile
 
@@ -44,9 +44,7 @@ def package_content(request):
         reference_id = data['reference_id']
         key = data['key']
         kid = data['kid']
-        # encryption_key = '76a6c65c5ea762046bd749a2e632ccbb'
-        # encryption_kid = 'a7e61c373e219033c21091fa607bf3b8'
-        convert_video(reference_id=reference_id, encryption_key=key, encryption_kid=kid)
-        return HttpResponse(f'id: {reference_id}, key: {key}, kid: {kid}')
+        converted_file_id = consume_video(reference_id=reference_id, encryption_key=key, encryption_kid=kid)
+        return HttpResponse(f'packaged_content_id: {converted_file_id}')
 
-    return HttpResponse("Ho")
+    return HttpResponseBadRequest("Only post requests are allowed")

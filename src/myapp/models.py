@@ -2,7 +2,8 @@ from django.db import models
 
 CONVERSION_STATUS = (
     ('init', 'initiated'),
-    ('ended', 'finished')
+    ('ended', 'finished'),
+    ('failed', 'failed'),
 )
 
 
