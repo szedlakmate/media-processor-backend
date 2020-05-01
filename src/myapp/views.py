@@ -11,19 +11,16 @@ from .models import RawFile, EncodedFile
 
 @csrf_exempt
 def upload_file(request):
-    message = 'Upload as many files as you want!'
 
     # Handle file upload
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            newdoc = RawFile(raw_file=request.FILES['docfile'])
+            newdoc = RawFile(raw_file=request.FILES['media_file'])
             newdoc.save()
 
             return HttpResponse(f'reference_id: {newdoc.id}', content_type="text/plain")
 
-        else:
-            message = 'The form is not valid. Fix the following error:'
     else:
         form = DocumentForm()  # An empty, unbound form
 
@@ -31,7 +28,7 @@ def upload_file(request):
     documents = RawFile.objects.all()
 
     # Render list page with the documents and the form
-    context = {'documents': documents, 'form': form, 'message': message}
+    context = {'form': form}
     return render(request, 'list.html', context)
 
 
