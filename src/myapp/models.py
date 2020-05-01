@@ -13,7 +13,7 @@ class RawFile(models.Model):
 
 class EncodedFile(models.Model):
     source = models.ForeignKey(RawFile, on_delete=models.CASCADE)
-    encoded_file = models.FileField(upload_to='encoded')
+    encoded_file = models.FileField()
     encryption_key = models.TextField()
     encryption_kid = models.TextField()
     status = models.TextField(choices=CONVERSION_STATUS, default='init')
