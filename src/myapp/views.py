@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .convert_video import consume_video
 from .forms import DocumentForm
-from .models import RawFile
+from .models import RawFile, EncodedFile
 
 
 @csrf_exempt
@@ -36,7 +36,7 @@ def upload_file(request):
 
 
 @csrf_exempt
-def package_content(request):
+def packaged_content(request):
     # Package content
     if request.method == 'POST':
         # TODO: handle bad requests
@@ -48,3 +48,19 @@ def package_content(request):
         return HttpResponse(f'packaged_content_id: {converted_file_id}')
 
     return HttpResponseBadRequest("Only post requests are allowed")
+
+
+@csrf_exempt
+def packaged_content_status(request, packaged_content_id):
+    # TODO: Add exception handling
+    if request.method == 'GET':
+        encoded_file = EncodedFile.objects.get(id=packaged_content_id)
+        if encoded_file.status == 'init':
+            return HttpResponse('Processing has been started', status=202)
+        elif encoded_file.status == 'ended':
+            return HttpResponse(f'location: {encoded_file.encoded_file.url}, key: {encoded_file.encryption_key}, kid: {encoded_file.encryption_kid}', status=200)
+        elif encoded_file.status == 'failed':
+            return HttpResponse('Processing the file failed', status=500)
+        return HttpResponse(status=500)
+
+    return HttpResponseBadRequest("Only GET requests are allowed")
