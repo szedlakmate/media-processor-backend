@@ -7,6 +7,13 @@ from .util import generate_random_string
 
 
 def consume_video(reference_id, encryption_key, encryption_kid):
+    """
+    Pre-generate EncodedFile with encryption_key and encryption_kid
+    :param reference_id: RawFile.id
+    :param encryption_key: key for cenc-aes-ctr encyption
+    :param encryption_kid: kid for cenc-aes-ctr encyption
+    :return: EncodedFile.id
+    """
     target_dir = 'media'
     raw_file = RawFile.objects.get(pk=reference_id)
     input_file = raw_file.raw_file.path
@@ -28,6 +35,13 @@ def consume_video(reference_id, encryption_key, encryption_kid):
 
 
 def convert_video(input_file, output, encode_file_id):
+    """
+    Encrypt uploaded RawFile with encryption_key and encryption_kid included in pre-generated EncodedFile
+    :param input_file:
+    :param output:
+    :param encode_file_id:
+    :return:
+    """
     encoded_file = EncodedFile.objects.get(id=encode_file_id)
 
     try:

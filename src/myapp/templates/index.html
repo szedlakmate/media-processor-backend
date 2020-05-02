@@ -6,7 +6,9 @@
     </head>
 
     <body>
-        <form action="{% url 'upload_file' %}" method="post" >
+        <!-- Upload form. Note enctype attribute! -->
+        <form action="{% url 'upload_file' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
             <p>{{ form.non_field_errors }}</p>
 
             <p>{{ form.media_file.label_tag }} {{ form.media_file.help_text }}</p>

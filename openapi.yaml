@@ -49,6 +49,7 @@ paths:
                 type: object
                 properties:
                   reference_id:
+                    description: RawFile.id
                     type: integer
   /packaged_content:
     post:
@@ -99,6 +100,7 @@ paths:
                 type: object
                 properties:
                   location:
+                    description: relative path on disk
                     type: string
                   key:
                     type: string
@@ -123,6 +125,7 @@ components:
       type: object
       properties:
         reference_id:
+          description: RawFile.id
           type: integer
           format: int64
         key:
