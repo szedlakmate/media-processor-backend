@@ -59,6 +59,5 @@ def packaged_content_status(request, packaged_content_id):
                 status=200)
         elif encoded_file.status == 'failed':
             return HttpResponse('Processing the file failed', status=500)
-        return HttpResponse(status=500)
 
     return HttpResponseBadRequest("Only GET requests are allowed")
