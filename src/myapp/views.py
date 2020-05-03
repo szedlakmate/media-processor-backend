@@ -9,8 +9,12 @@ from .forms import DocumentForm
 from .models import RawFile, EncodedFile
 
 
-@csrf_exempt
 def upload_file(request):
+    """
+    Manages file upload (RawFile)
+    :param request:
+    :return: POST: reference_id GET: index.html'
+    """
     # Handle file upload
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
@@ -25,11 +29,16 @@ def upload_file(request):
 
     # Render upload page
     context = {'form': form}
-    return render(request, 'list.html', context)
+    return render(request, 'index.html', context)
 
 
 @csrf_exempt
 def packaged_content(request):
+    """
+    Start RawFile packaging background task
+    :param request:
+    :return: POST: packaged_content_id
+    """
     # Package content
     if request.method == 'POST':
         # TODO: handle bad requests
@@ -45,7 +54,17 @@ def packaged_content(request):
 
 @csrf_exempt
 def packaged_content_status(request, packaged_content_id):
-    # TODO: Add exception handling
+    """
+    Response status of the initiated file packaging task.
+    Responses:
+        200: finished
+        202: Encoding has started
+        404: EncodedFile.id not found
+        500: Encoding failed
+    :param request:
+    :param packaged_content_id: EncodedFile.id
+    :return: response status of EncodedFile packaging process
+    """
     if request.method == 'GET':
         try:
             encoded_file = EncodedFile.objects.get(id=packaged_content_id)
@@ -59,6 +78,5 @@ def packaged_content_status(request, packaged_content_id):
                 status=200)
         elif encoded_file.status == 'failed':
             return HttpResponse('Processing the file failed', status=500)
-        return HttpResponse(status=500)
 
     return HttpResponseBadRequest("Only GET requests are allowed")

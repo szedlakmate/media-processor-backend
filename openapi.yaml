@@ -1,0 +1,142 @@
+openapi: 3.0.1
+info:
+  description: >-
+    This is a sample server consuming media files and converting them when
+    requested.
+  version: 1.0.0
+  title: Media server
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: szedlakmate@gmail.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+- url: http://localhost:8000
+tags:
+- name: RawFile
+  description: File upload
+- name: EncodedFile
+  description: Encoded file
+paths:
+  /:
+    get:
+      summary: Simple html page uploading sample files
+      description: >-
+        This page should be loaded prior uploading files to
+        allow the upload_file endpoint accepting the file with the below described
+        cookie authentication.
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Page is loaded
+  /upload_file:
+    post:
+      tags:
+        - RawFile
+      summary: Receive uploaded media file
+      description: 'Upload file'
+      operationId: upload_file
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reference_id:
+                    description: RawFile.id
+                    type: integer
+  /packaged_content:
+    post:
+      tags:
+        - EncodedFile
+      summary: Send packaging arguments as of encryption key and key ID
+      operationId: packaged_content
+      requestBody:
+        description: Send encryption data for media packaging task
+        content:
+           application/json:
+             schema:
+               type: object
+               properties:
+               $ref: '#/components/schemas/packaged_content'
+        required: true
+      responses:
+        '200':
+          description: Launch packaging job
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  packaged_content_id:
+                    type: integer
+  /packaged_content/{packaged_content_id}:
+    get:
+      tags:
+      - EncodedFile
+      summary: File operation status
+      description: Gives information about the conversion of the media file with packaged_content_id
+      operationId: packaged_content_status
+      parameters:
+      - name: packaged_content_id
+        in: path
+        description: ID of the new packaged content
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: operation successfully finished
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  location:
+                    description: relative path on disk
+                    type: string
+                  key:
+                    type: string
+                  kid:
+                    type: string
+        202:
+          description: Processing has been started
+          content: {}
+        404:
+          description: Media not found
+          content: {}
+        500:
+          description: The file conversion failed
+          content: {}
+components:
+  schemas:
+    packaged_content:
+      required:
+      - reference_id
+      - key
+      - kid
+      type: object
+      properties:
+        reference_id:
+          description: RawFile.id
+          type: integer
+          format: int64
+        key:
+          type: string
+          example: 76a6c65c5ea762046bd749a2e632ccbb
+        kid:
+          type: string
+          example: a7e61c373e219033c21091fa607bf3b8
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: csrftoken
